@@ -518,4 +518,4 @@ def delete_reasearch():
     return jsonify({"error": True, "data": "Login First"})
 
 
-app.run()
+app.run(host='0.0.0.0')
