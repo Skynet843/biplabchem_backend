@@ -4,7 +4,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
-
+#test
 file_path = os.path.abspath(os.getcwd()) + "/biplabchem.db"
 path = os.path.abspath(os.getcwd())
 UPLOAD_FOLDER = path + "/static/upload"
