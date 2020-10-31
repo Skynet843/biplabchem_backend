@@ -1,0 +1,8 @@
+.nav-item:hover{
+    font-weight: bold;
+}
+* {
+    font-family: 'Josefin Sans', sans-serif;
+    margin: 0px;
+    padding: 0px;
+  }

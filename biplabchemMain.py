@@ -1,16 +1,17 @@
 from sqlalchemy import null, desc
-from flask import jsonify, make_response, request, session, url_for, redirect
+from flask import jsonify, make_response, request, session, url_for, redirect,render_template
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
+from flask_cors import CORS
 #test
 file_path = os.path.abspath(os.getcwd()) + "/biplabchem.db"
 path = os.path.abspath(os.getcwd())
 UPLOAD_FOLDER = path + "/static/upload"
 # create Flask APP And Do Configuration
 app = Flask(__name__)
-
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 # end of flask app configuration
 # Get config parameter
 file = open('config.json', 'r')
@@ -85,9 +86,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/')
-def index():
-    return 'Test'
+
 
 
 @app.route('/get-profile', methods=["POST"])
@@ -145,16 +144,18 @@ def update_profile():
         return make_response(jsonify({"error": True, "data": "Login First"}))
 
 
-@app.route('/login', methods=["POST"])
+@app.route('/', methods=["POST","GET"])
 def login():
     if 'user' in session and session['user'] == params['user-name']:
-        return make_response(jsonify({"error": False, "data": "user already login"}))
+        return render_template("adminProfile.html")
     else:
+        if request.method =="GET":
+            return render_template("adminLogin.html")
         passw = str(request.form.get("password"))
         user = str(request.form.get("username"))
         if passw == params['user-password'] and user == params['user-name']:
             session['user'] = user
-            return make_response(jsonify({"error": False, "data": "Login Success Full"}))
+            return render_template("adminProfile.html")
         else:
             return make_response({"error": True, "data": "Wrong User Name or Password"})
 
@@ -174,8 +175,8 @@ def update_profile_pic():
                     app.config['UPLOAD_FOLDER'], "profile_pic.png"))
             pic.save(os.path.join(
                 app.config['UPLOAD_FOLDER'], "profile_pic.png"))
-            return jsonify({"error": False, "data": "Profile Photo Update Successfully"})
-    return make_response(jsonify({"error": True, "data": "Login First"}))
+            return redirect(url_for("login"),code=301)
+    return render_template("adminLogin.html")
 
 
 @app.route('/logout', methods=["GET"])
@@ -195,7 +196,7 @@ def display_image(filename):
 
 @app.route('/get-details-by-category', methods=["POST"])
 def get_details():
-    if request.form.get("accesskey") == params["accesskey"]:
+    if request.json["accesskey"] == params["accesskey"]:
         if 'category' not in request.form:
             return jsonify({"error": True, "data": "Please Enter A category."})
         category_key = request.form.get("category")
@@ -350,7 +351,7 @@ def add_publication():
 
 @app.route("/get-publication", methods=["POST"])
 def get_publication():
-    if request.form.get("accesskey") == params["accesskey"]:
+    if request.json["accesskey"] == params["accesskey"]:
         publications = Publication.query.filter_by().order_by(desc(Publication.id)).all()
         data = []
         for pub in publications:
@@ -436,7 +437,7 @@ def update_publication():
 
 @app.route("/get-research", methods=["POST"])
 def get_reasearch():
-    if request.form.get("accesskey") == params["accesskey"]:
+    if request.json["accesskey"] == params["accesskey"]:
         researchs = Reasearch.query.filter_by().order_by(desc(Reasearch.id)).all()
         data = []
         for re in researchs:
@@ -518,4 +519,4 @@ def delete_reasearch():
     return jsonify({"error": True, "data": "Login First"})
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(debug=True)
