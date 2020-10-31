@@ -92,7 +92,7 @@ def index():
 
 @app.route('/get-profile', methods=["POST"])
 def get_profile():
-    if request.form.get("accesskey") == "9494":
+    if request.json["accesskey"] == "9494":
         profile = Profile.query.filter_by(id=1).first()
         if profile == null:
             return make_response(jsonify({"error": True, "data": "No Data Found"}))
