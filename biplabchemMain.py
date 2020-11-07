@@ -201,7 +201,7 @@ def get_details():
     if request.json["accesskey"] == params["accesskey"]:
         if 'category' not in request.form:
             return jsonify({"error": True, "data": "Please Enter A category."})
-        category_key = request.form.get("category")
+        category_key = request.json["category"]
         details = Details.query.filter_by(
             category=category_key).order_by(desc(Details.id)).all()
         final_data = []
