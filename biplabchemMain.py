@@ -266,7 +266,7 @@ def add_details():
 
 @app.route('/get-gallery', methods=["POST"])
 def get_gallery():
-    if request.form.get("accesskey") == params["accesskey"]:
+    if request.json["accesskey"] == params["accesskey"]:
         gallery_items = Gallery.query.filter_by().order_by(desc(Gallery.id)).all()
         data = []
         for item in gallery_items:
