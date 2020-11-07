@@ -70,7 +70,7 @@
                   
                         <!-- Modal Header -->
                         <div class="modal-header">
-                          <h4 class="modal-title">Modal Heading</h4>
+                          <h4 class="modal-title">Edit Publication</h4>
                           <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <!-- Modal body -->
@@ -133,7 +133,7 @@
                     <input type="hidden" name="id" value="{{item.id}}">
                 </form>
                 <tr>
-                    <td>{{count}}</td>
+                    <td>{{loop.index}}</td>
                     <td class="text-center align-middle h4">{{item.title}}</td>
                     <td><img src="{{item.image}}" class="img-thumbnail w-100 h-auto" alt=""></td>
                     <td class="align-middle">
