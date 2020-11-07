@@ -58,19 +58,19 @@ class Gallery(db.Model):
 
 class Publication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    image = db.Column(db.String(100), unique=False, nullable=False)
-    image_filename = db.Column(db.String(100), unique=False, nullable=False)
+    image = db.Column(db.String(100), unique=False, nullable=True)
+    image_filename = db.Column(db.String(100), unique=False, nullable=True)
     title = db.Column(db.String(500), nullable=False, unique=False)
     author = db.Column(db.String(500), nullable=False, unique=False)
     ref_no = db.Column(db.String(500), nullable=False, unique=False)
-    pdf_link = db.Column(db.String(500), nullable=False, unique=False)
-    pdf_name = db.Column(db.String(500), nullable=False, unique=False)
+    pdf_link = db.Column(db.String(500), nullable=False, unique=True)
+    pdf_name = db.Column(db.String(500), nullable=False, unique=True)
 
 
 class Reasearch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    image = db.Column(db.String(100), nullable=False, unique=False)
-    image_filename = db.Column(db.String(100), nullable=False, unique=False)
+    image = db.Column(db.String(100), nullable=True, unique=False)
+    image_filename = db.Column(db.String(100), nullable=True, unique=False)
     title = db.Column(db.String(500), nullable=True, unique=False)
     body = db.Column(db.String(1000), nullable=True, unique=False)
 
@@ -327,39 +327,37 @@ def delete_gallery():
 @app.route('/add-publication', methods=["POST"])
 def add_publication():
     if 'user' in session and session['user'] == params['user-name']:
-        if 'image' not in request.files:
-            return jsonify({"error": True, "data": "Please Upload A Image"})
-        image = request.files['image']
-        if image.filename == '':
-            return jsonify({"error": True, "data": "File Not Selected"})
-        if not (image and allowed_file(image.filename)):
-            return jsonify({"error": True, "data": "Please Upload A supported file"})
-        if 'document' not in request.files:
-            return jsonify({"error": True, "data": "Please Upload A Document"})
-        document = request.files['document']
-        if document.filename == '':
-            return jsonify({"error": True, "data": "File Not Selected"})
-        if not (document and allowed_file(document.filename)):
-            return jsonify({"error": True, "data": "Please Upload Supported File"})
-        import datetime
-        basename = "publication"
-        suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        filename = "_".join([basename, suffix])
-        filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
-        basename = "publication_document"
-        suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        filename = "_".join([basename, suffix])
-        filename_pdf = filename + "." + document.filename.rsplit('.', 1)[1].lower()
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
-        document.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_pdf))
         publication = Publication()
-        publication.image = url_for('static', filename='upload/' + filename_image)
-        publication.image_filename = filename_image
+        if 'image' in request.files:
+            image = request.files['image']
+            if image.filename != '':
+                if (image and allowed_file(image.filename)):
+                    print("souvik")
+                    import datetime
+                    basename = "publication"
+                    suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+                    filename = "_".join([basename, suffix])
+                    filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
+                    publication.image_filename= filename_image
+                    publication.image=url_for('static', filename='upload/' + filename_image)
+                    
+                    
+        if 'document' in request.files:
+            document = request.files['document']
+            if document.filename != '':
+                if (document and allowed_file(document.filename)):
+                    import datetime
+                    basename = "publication_document"
+                    suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+                    filename = "_".join([basename, suffix])
+                    filename_pdf = filename + "." + document.filename.rsplit('.', 1)[1].lower()
+                    document.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_pdf))
+                    publication.pdf_link = url_for('static', filename='upload/' + filename_pdf)
+                    publication.pdf_name = filename_pdf
         publication.title = request.form.get("title")
         publication.author = request.form.get("author")
         publication.ref_no = request.form.get("ref_no")
-        publication.pdf_link = url_for('static', filename='upload/' + filename_pdf)
-        publication.pdf_name = filename_pdf
         db.session.add(publication)
         db.session.commit()
         return redirect(url_for("publication"))
@@ -401,11 +399,7 @@ def delete_publication():
         id = request.form.get("id")
         publication = Publication.query.filter_by(id=id).first()
         filename = publication.image_filename
-        if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         filename = publication.pdf_name
-        if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         db.session.delete(publication)
         db.session.commit()
         return redirect(url_for("publication"))
@@ -428,8 +422,6 @@ def update_publication():
                     filename = "_".join([basename, suffix])
                     filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
                     image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
-                    if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], publication.image_filename)):
-                        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], publication.image_filename))
                     publication.image_filename= filename_image
                     publication.image=url_for('static', filename='upload/' + filename_image)
                     
@@ -444,8 +436,6 @@ def update_publication():
                     filename = "_".join([basename, suffix])
                     filename_pdf = filename + "." + document.filename.rsplit('.', 1)[1].lower()
                     document.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_pdf))
-                    if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], publication.pdf_name)):
-                        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], publication.pdf_name))
                     publication.pdf_link = url_for('static', filename='upload/' + filename_pdf)
                     publication.pdf_name = filename_pdf
         

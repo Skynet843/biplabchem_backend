@@ -8,18 +8,7 @@ function uploadImage(){
     }
 }
 function check_input(){
-    let pubDoc = document.getElementById("publicationDoc");
-    let pubImg = document.getElementById("publicationImg");
-    console.log("Master");
-    if(pubDoc.value == ""){
-        alert("Please Enter the Document File");
-    }
-    else if(pubImg.value == ""){
-        alert("Please Enter the Image file");
-    }
-    else{
         document.getElementById("publicationForm").submit();
-    }
 }
 function uploadImageGallery(){
     console.log("TRest")
