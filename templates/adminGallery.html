@@ -1,0 +1,55 @@
+{% extends "layout_admin_panel.html" %}
+{% block body %}
+
+<div class="container-fluid">
+    <div class="container">
+        <h3 class="h3 text-primary mt-5">Add Gallery Image : </h3>
+        <hr>
+    </div>
+    <div class="col-6 container mx-auto mt-3">
+        <form action="/add-image-gallery" method="POST" id="addGalleryForm" enctype="multipart/form-data">
+            <div class="row mx-auto">
+                <div class="custom-file col-10">
+                    <input type="file" name="file" class="custom-file-input" id="customFileGallery">
+                    <label class="custom-file-label" for="customFile">Choose photo</label>
+                  </div>
+                  <div class="col-2">
+                    <Button type="button" class="col btn-primary btn" onclick="uploadImageGallery()">Upload</Button>
+                  </div>
+            </div>
+        </form>
+        
+
+    </div>
+    <div class="col-8 container mt-5 mx-auto">
+        <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Photo</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+                
+                {% for item in gallery_items %}
+                <form action="/delete-gallery-image" method="post" id="{{"deleteGellery"+item.id|string}}">
+                    <input type="hidden" name="id" value="{{item.id}}">
+                </form>
+              <tr>
+                <th scope="row" class="align-middle">{{item.id}}</th>
+                <td class="text-center"><img src="{{item.pic_link}}" alt="Error" class="img-thumbnail w-50 h-auto mx-auto"/></td>
+                <td class="align-middle"><div class="row">
+                    <input type="submit" form="{{"deleteGellery"+item.id|string}}" value="Delete" class="btn btn-danger"/>
+                </div></td>
+              </tr>
+              
+                {% endfor %}
+              
+            </tbody>
+          </table>
+          
+          
+    </div>
+</div>
+{% endblock %}

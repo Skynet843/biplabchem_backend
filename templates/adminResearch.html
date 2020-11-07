@@ -1,0 +1,88 @@
+{% extends "layout_admin_panel.html" %}
+{% block body %}
+<div class="container-fluid">
+
+
+<div class="container mt-3">
+
+    <h3 class="h3 text-primary mt-5">Add Research : </h3>
+    <hr>
+    <form action="/add-research" method="POST" id="researchForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <lable for="researchTitle">Research Title : </lable>
+            <input type="text" id="researchTitle" class="form-control" name="title"/>
+        </div>
+        <div class="custom-file">
+            <lable class="text-secondary">Research Image : </lable>
+            <input type="file" name="image" class="custom-file-input" id="customFileResearch">
+            <label class="custom-file-label" for="customFileResearch">Choose Image</label>
+          </div>
+          <div class="mt-3">
+              <lable class="text-secondary">Description : </lable>
+              <textarea name="description"></textarea><br/>
+
+          </div>
+        
+    </form>
+    <input type="submit" name="submit" value="Add Reseach" form="researchForm" class="btn btn-primary"/>
+    <div class="container mt-5">
+        <h3 class="h3 text-info">Research List : </h3>
+        <hr>
+        <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">No</th>
+                <th scope="col">Title</th>
+                <th scope="col" style="width:250px">Image</th>
+                <th scope="col" style="width:150px">Action</th>
+              </tr>
+            </thead>
+            
+            </form>
+            <tbody>
+                {% set count = 1 %}
+                {% for item in research %}
+                <form action="/delete-research" method="post" id="{{"deleteResearch"+item.id|string}}">
+                    <input type="hidden" name="id" value="{{item.id}}">
+                </form>
+                <form action="/goto-reasearch-update" targer="_app" method="post" id="{{"IDKFrom"+item.id|string}}">
+                    <input type="hidden" name="id" value="{{item.id}}">
+                </form>
+                <tr>
+                    <td>{{count}}</td>
+                    <td class="text-center align-middle h4">{{item.title}}</td>
+                    <td><img src="{{item.image}}" class="img-thumbnail w-100 h-auto" alt=""></td>
+                    <td class="align-middle">
+                        <div class="row">
+                            <button type="submit" form="{{"IDKFrom"+item.id|string}}" class="btn btn-primary col mx-2" >Edit</button>
+                            <button class="btn btn-danger col" form="{{"deleteResearch"+item.id|string}}">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                {% set count = count + 1 %}
+                {% endfor %}
+                
+
+            </tbody>
+          </table>
+
+</div>
+</div>
+<!-- <textarea name="editor2"></textarea><br />//Set Data   -->
+<!-- <input type="button" id="getData" name="getData" value="Get and Set Data" onclick="getData()" />  -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

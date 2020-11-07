@@ -71,8 +71,8 @@ class Reasearch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image = db.Column(db.String(100), nullable=False, unique=False)
     image_filename = db.Column(db.String(100), nullable=False, unique=False)
-    title = db.Column(db.String(500), nullable=False, unique=False)
-    body = db.Column(db.String(1000), nullable=False, unique=False)
+    title = db.Column(db.String(500), nullable=True, unique=False)
+    body = db.Column(db.String(1000), nullable=True, unique=False)
 
 
 with app.app_context():
@@ -159,7 +159,7 @@ def login():
             profileData=Profile.query.filter_by().first()
             return render_template("adminProfile.html",profile=profileData)
         else:
-            return make_response({"error": True, "data": "Wrong User Name or Password"})
+            return redirect(url_for("login"))
 
 
 @app.route('/update-profile-pic', methods=["POST"])
@@ -185,9 +185,9 @@ def update_profile_pic():
 def logout():
     if 'user' in session and session['user'] == params['user-name']:
         session.pop("user")
-        return jsonify({"error": False, "data": "logout successfully"})
+        return redirect(url_for("login"))
     else:
-        return jsonify({"error": True, "data": "login first"})
+        return redirect(url_for("login"))
 
 
 @app.route('/display/<filename>')
@@ -229,14 +229,15 @@ def delete_details():
 
 @app.route("/education",methods=["GET"])
 def education():
-    education = Details.query.filter_by(
-            category="education").order_by(desc(Details.id)).all()
-    position= Details.query.filter_by(
-            category="position").order_by(desc(Details.id)).all()
-    awards = Details.query.filter_by(
-            category="awards").order_by(desc(Details.id)).all()
-    return render_template("adminDetails.html",education=education,position=position,awards=awards)
-
+    if 'user' in session and session['user'] == params['user-name']:
+        education = Details.query.filter_by(
+                category="education").order_by(desc(Details.id)).all()
+        position= Details.query.filter_by(
+                category="position").order_by(desc(Details.id)).all()
+        awards = Details.query.filter_by(
+                category="awards").order_by(desc(Details.id)).all()
+        return render_template("adminDetails.html",education=education,position=position,awards=awards)
+    return redirect(url_for("login"))
 @app.route('/update-details-by-id', methods=["POST"])
 def update_details():
     if 'user' in session and session['user'] == params['user-name']:
@@ -300,10 +301,15 @@ def add_image():
             gal.file_name = filename
             db.session.add(gal)
             db.session.commit()
-            return jsonify({"error": False, "data": "Photo Added"})
-    return make_response(jsonify({"error": True, "data": "Login First"}))
+            return redirect(url_for("gallery"))
+    return redirect(url_for("login"))
 
-
+@app.route("/gallery",methods=["GET"])
+def gallery():
+    if 'user' in session and session['user'] == params['user-name']:
+        gallery_items = Gallery.query.filter_by().order_by(desc(Gallery.id)).all()
+        return render_template("adminGallery.html",gallery_items=gallery_items)
+    return redirect(url_for("login"))
 @app.route('/delete-gallery-image', methods=["POST"])
 def delete_gallery():
     if 'user' in session and session['user'] == params['user-name']:
@@ -314,8 +320,8 @@ def delete_gallery():
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         db.session.delete(gallery)
         db.session.commit()
-        return jsonify({"error": False, "data": "Photo deleted Successfully"})
-    return make_response(jsonify({"error": True, "data": "Login First"}))
+        return redirect(url_for("gallery"))
+    return redirect(url_for("login"))
 
 
 @app.route('/add-publication', methods=["POST"])
@@ -356,13 +362,15 @@ def add_publication():
         publication.pdf_name = filename_pdf
         db.session.add(publication)
         db.session.commit()
-        return jsonify({"error": False, "data": "Publication added successfully"})
-    return jsonify({"error": True, "data": "Login First"})
+        return redirect(url_for("publication"))
+    return redirect(url_for("login"))
 
 @app.route("/publication")
 def publication():
-    publications = Publication.query.filter_by().order_by(desc(Publication.id)).all()
-    return render_template("adminPublication.html",publications=publications)
+    if 'user' in session and session['user'] == params['user-name']:
+        publications = Publication.query.filter_by().order_by(desc(Publication.id)).all()
+        return render_template("adminPublication.html",publications=publications)
+    return redirect(url_for("login"))
 
 @app.route("/get-publication", methods=["POST"])
 def get_publication():
@@ -385,7 +393,7 @@ def get_publication():
     return jsonify({"error": True, "data": "Please enter valid accesskey"})
 
 
-@app.route("/delete-publication-by-id")
+@app.route("/delete-publication-by-id",methods=["POST"])
 def delete_publication():
     if 'user' in session and session['user'] == params['user-name']:
         if 'id' not in request.form:
@@ -400,8 +408,8 @@ def delete_publication():
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         db.session.delete(publication)
         db.session.commit()
-        return jsonify({"error": False, "data": "Deleted Successfully"})
-    return jsonify({"error": True, "data": "Please login first"})
+        return redirect(url_for("publication"))
+    return redirect(url_for("login"))
 
 
 @app.route("/update-publication", methods=["POST"])
@@ -413,6 +421,7 @@ def update_publication():
             image = request.files['image']
             if image.filename != '':
                 if (image and allowed_file(image.filename)):
+                    print("souvik")
                     import datetime
                     basename = "publication"
                     suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
@@ -421,6 +430,8 @@ def update_publication():
                     image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
                     if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], publication.image_filename)):
                         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], publication.image_filename))
+                    publication.image_filename= filename_image
+                    publication.image=url_for('static', filename='upload/' + filename_image)
                     
                     
         if 'document' in request.files:
@@ -432,7 +443,6 @@ def update_publication():
                     suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
                     filename = "_".join([basename, suffix])
                     filename_pdf = filename + "." + document.filename.rsplit('.', 1)[1].lower()
-                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
                     document.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_pdf))
                     if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], publication.pdf_name)):
                         os.remove(os.path.join(app.config['UPLOAD_FOLDER'], publication.pdf_name))
@@ -447,8 +457,8 @@ def update_publication():
         publication.ref_no = request.form.get("ref_no")
         
         db.session.commit()
-        return jsonify({"error": False, "data": "Publication updated successfully"})
-    return jsonify({"error": True, "data": "Login First"})
+        return redirect(url_for("publication"))
+    return redirect(url_for("login"))
 
 @app.route("/get-research", methods=["POST"])
 def get_reasearch():
@@ -471,30 +481,32 @@ def get_reasearch():
 @app.route("/add-research", methods=["POST"])
 def add_reasearch():
     if 'user' in session and session['user'] == params['user-name']:
-        if 'image' not in request.files:
-            return jsonify({"error": True, "data": "Please Upload A Image"})
-        image = request.files['image']
-        if image.filename == '':
-            return jsonify({"error": True, "data": "File Not Selected"})
-        if not (image and allowed_file(image.filename)):
-            return jsonify({"error": True, "data": "Please Upload A supported file"})
-        import datetime
-        basename = "reasearch"
-        suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        filename = "_".join([basename, suffix])
-        filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
         reasearch = Reasearch()
-        reasearch.image = url_for('static', filename='upload/' + filename_image)
-        reasearch.image_filename = filename_image
+        if 'image' in request.files:
+            image = request.files['image']
+            if image.filename != "":
+                if (image and allowed_file(image.filename)):
+                    import datetime
+                    basename = "reasearch"
+                    suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+                    filename = "_".join([basename, suffix])
+                    filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
+                    reasearch.image_filename = filename_image
+                    reasearch.image = url_for('static', filename='upload/' + filename_image)     
         reasearch.title = request.form.get("title")
-        reasearch.description = request.form.get("description")
+        reasearch.body = request.form.get("description")
         db.session.add(reasearch)
         db.session.commit()
-        return jsonify({"error": False, "data": "Reasearch Successfully"})
-    return jsonify({"error": True, "data": "Login First"})
+        return redirect(url_for("research"))
+    return redirect(url_for("login"))
 
-
+@app.route("/research",methods=["GET"])
+def research():
+    if 'user' in session and session['user'] == params['user-name']:
+        researchs = Reasearch.query.filter_by().order_by(desc(Reasearch.id)).all()
+        return render_template("adminResearch.html",research=researchs)
+    return redirect(url_for("login"))
 @app.route("/update-research", methods=["POST"])
 def update_reasearch():
     if 'user' in session and session['user'] == params['user-name']:
@@ -502,36 +514,40 @@ def update_reasearch():
         res = Reasearch.query.filter_by(id=id).first()
         if 'image' in request.files:
             image = request.files['image']
-            if image.filename == "":
-                return jsonify({"error": True, "data": "File Not Selected"})
-            if not (image and allowed_file(image.filename)):
-                return jsonify({"error": True, "data": "Please Upload A supported file"})
-            import datetime
-            basename = "reasearch"
-            suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-            filename = "_".join([basename, suffix])
-            filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
-            image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
-            if os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], res.image_filename)):
-                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], res.image_filename))
-            res.image_filename = filename_image
-            res.image = url_for('static', filename='upload/' + filename_image)
+            if image.filename != "":
+                if (image and allowed_file(image.filename)):
+                    import datetime
+                    basename = "reasearch"
+                    suffix = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+                    filename = "_".join([basename, suffix])
+                    filename_image = filename + "." + image.filename.rsplit('.', 1)[1].lower()
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename_image))
+                    res.image_filename = filename_image
+                    res.image = url_for('static', filename='upload/' + filename_image)
         res.title = request.form.get("title")
-        res.body = request.form.get("body")
+        res.body = request.form.get("description")
         db.session.commit()
-        return jsonify({"error": False, "data": "Reasearch updated successfully"})
-    return jsonify({"error": True, "data": "Login First"})
+        return redirect(url_for("research"))
+    return redirect(url_for("login"))
 
 
-@app.route("/delete-research")
+@app.route("/delete-research" ,methods=["POST"])
 def delete_reasearch():
     if 'user' in session and session['user'] == params['user-name']:
         id = request.form.get("id")
         res = Reasearch.query.filter_by(id=id).first()
         db.session.delete(res)
         db.session.commit()
-        return jsonify({"error": False, "data": "Research deleted successfully"})
-    return jsonify({"error": True, "data": "Login First"})
+        return redirect(url_for("research"))
+    return redirect(url_for("login"))
 
+
+@app.route("/goto-reasearch-update", methods=["POST"])
+def goto_reasearch_update():
+    if 'user' in session and session['user'] == params['user-name']:
+        id= request.form.get("id")
+        data=Reasearch.query.filter_by(id=id).first()
+        return render_template("adminEditResearch.html",data=data)
+    return redirect(url_for("login"))
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")

@@ -60,15 +60,86 @@
             <tbody>
                 {% set count = 1 %}
                 {% for item in publications %}
-                <form action="" id="{{"deletePublication"+item.id|string}}"></form>
+
+
+
+
+                <div class="modal" id="{{"editPostModal"+item.id|string}}">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                  
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal Heading</h4>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <form action="/update-publication" method="POST" class="col-8 mx-auto" id="{{"publicationUpdateForm"+item.id|string}}" enctype="multipart/form-data">
+                                <input type="hidden" name="id" value="{{item.id}}"/>
+                                <div class="form-group">
+                                    <lable for="title">Title</lable>
+                                    <input type="text" id="title" class="form-control" name="title" value="{{item.title}}" placeholder="Enter the publication Title"/>
+                                </div>
+                                <div class="form-group">
+                                    <lable for="author">Authors</lable>
+                                    <input type="text" id="author" class="form-control" value="{{item.author}}" name="author" placeholder="Enter the Authors"/>
+                                </div>
+                                <div class="form-group">
+                                    <lable for="ref_no">Referance Number</lable>
+                                    <input type="text" id="ref_no" class="form-control" value="{{item.ref_no}}" name="ref_no" placeholder="Enter the Referance Title"/>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                    <h3 class="mt-3 text-danger">Image : </h3>
+                                    <div class=" form-group">
+                                        <div class="custom-file">
+                                            <label class="custom-file-label" for="publicationImg">Choose Image</label>
+                                            <input type="file" name="image" id="publicationImg" class="custom-file-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <h3 class="mt-3 text-danger">Document : </h3>
+                                    <div class=" form-group">
+                                        <div class="custom-file">
+                                            <label class="custom-file-label" for="publicationDoc">Choose Document</label>
+                                            <input type="file" name="document" id="publicationDoc" class="custom-file-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </form> 
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <input type="submit" name="submit" value="Update" form="{{"publicationUpdateForm"+item.id|string}}" class="btn btn-primary"/>
+                        </div>
+                  
+                      </div>
+                    </div>
+                  </div>
+
+
+
+
+
+
+
+
+                <form action="/delete-publication-by-id" method="post" id="{{"deletePublication"+item.id|string}}">
+                    <input type="hidden" name="id" value="{{item.id}}">
+                </form>
                 <tr>
                     <td>{{count}}</td>
                     <td class="text-center align-middle h4">{{item.title}}</td>
                     <td><img src="{{item.image}}" class="img-thumbnail w-100 h-auto" alt=""></td>
                     <td class="align-middle">
                         <div class="row">
-                            <button class="btn btn-primary col mx-2">Edit</button>
-                            <button class="btn btn-danger col" form="deletePublication">Delete</button>
+                            <button class="btn btn-primary col mx-2"  data-toggle="modal" data-target="#{{"editPostModal"+item.id|string}}">Edit</button>
+                            <button class="btn btn-danger col" form="{{"deletePublication"+item.id|string}}">Delete</button>
                         </div>
                     </td>
                 </tr>

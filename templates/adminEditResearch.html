@@ -1,0 +1,29 @@
+{% extends "layout_admin_panel.html" %}
+{% block body %}
+<div class="container-fluid">
+    <div class="container">
+        <form action="/update-research" method="POST" id="researchForm" enctype="multipart/form-data">
+            <input type="hidden" name="id" value="{{data.id}}" />
+            <div class="form-group">
+                <lable for="researchTitle">Research Title : </lable>
+                <input type="text" id="researchTitle" value="{{data.title}}" class="form-control" name="title"/>
+            </div>
+            <div class="custom-file">
+                <lable class="text-secondary">Research Image : </lable>
+                <input type="file" name="image" class="custom-file-input" id="customFileResearch">
+                <label class="custom-file-label" for="customFileResearch">Choose Image</label>
+              </div>
+              <div class="mt-3">
+                  <lable class="text-secondary">Description : </lable>
+                  <textarea name="description">{{data.body}}</textarea><br/>
+    
+              </div>
+            
+        </form>
+        <input type="submit" name="submit" value="Update Research" form="researchForm" class="btn btn-primary"/>
+        <button onclick="window.location.href = '/research';" class="btn btn-danger">Return</button>
+    </div>
+
+</div>
+
+{% endblock %}
