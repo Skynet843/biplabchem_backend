@@ -464,7 +464,8 @@ def get_reasearch():
                 "body": re.body
             }
             data.append(dic)
-            return jsonify({"error": False, "data": data})
+            
+        return jsonify({"error": False, "data": data})
     return jsonify({"error": True, "data": "Bitch Do You Want TO Hack"})
 
 
