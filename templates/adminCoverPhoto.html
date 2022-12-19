@@ -1,0 +1,77 @@
+{% extends "layout_admin_panel.html" %}
+{% block body %}
+<div class="container-fluid">
+
+
+<div class="container mt-3">
+
+    <h3 class="h3 text-primary mt-5">Add Cover Photo : </h3>
+    <hr>
+    <form action="/add-cover_photo" method="POST" id="coverPhotoForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <lable for="coverPhotoLink">Cover Photo Link : </lable>
+            <input type="text" placeholder="Link for Redirect" id="coverPhotoLink" class="form-control" name="link"/>
+        </div>
+        <div class="custom-file">
+            <lable class="text-secondary">Cover Photo: </lable>
+            <input type="file" name="image" class="custom-file-input" id="customFileResearch">
+            <label class="custom-file-label" for="customFileResearch">Choose Image</label>
+          </div>
+    </form>
+    <input type="submit" name="submit" value="Add Cover Photo" form="coverPhotoForm" class="btn btn-primary"/>
+    <div class="container mt-5">
+        <h3 class="h3 text-info">Cover Photo List : </h3>
+        <hr>
+        <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col" style="width: 100px">No</th>
+                <th scope="col" style="width:250px">Image</th>
+                <th scope="col" style="width:150px">Action</th>
+              </tr>
+            </thead>
+            
+            </form>
+            <tbody>
+                {% set count = 1 %}
+                {% for item in cover_photo %}
+                <form action="/delete-cover_photo" method="post" id="{{"coverPhoto"+item.id|string}}">
+                    <input type="hidden" name="id" value="{{item.id}}">
+                </form>
+
+                <tr>
+                    <td>{{item.id}}</td>
+                    <td><img src="{{item.image}}" class="img-thumbnail w-100 h-auto" alt=""></td>
+                    <td class="align-middle">
+                        <div class="row">
+                            <button class="btn btn-danger col" form="{{"coverPhoto"+item.id|string}}">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                {% set count = count + 1 %}
+                {% endfor %}
+                
+
+            </tbody>
+          </table>
+
+</div>
+</div>
+<!-- <textarea name="editor2"></textarea><br />//Set Data   -->
+<!-- <input type="button" id="getData" name="getData" value="Get and Set Data" onclick="getData()" />  -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

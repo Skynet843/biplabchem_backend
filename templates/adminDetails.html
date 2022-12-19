@@ -278,11 +278,105 @@
               </table>
 
             <hr>
+
+
         </div>
         
         
-        
-        
+<!--      Members  -->
+        <div class="container-fluid mt-5">
+            <h3 class="h3 text-primary">Scientific Committee/Members</h3>
+            <hr>
+            <form action="/add-details" method="post">
+                <div class="row">
+                    <input type="hidden" name="category" value="members">
+                    <div class="form-group col">
+                        <input type="text" class="form-control" value="" name="first_part" placeholder="Committee Name">
+                    </div>
+                    <div class="form-group col">
+                        <input type="text" value="" class="form-control" name="second_part" placeholder="Information">
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary" name="submit" id="submit" value="Add">
+
+                    </div>
+                </div>
+                </form>
+            <br>
+            <table class="table col-10 mx-auto">
+                <thead class="thead-dark">
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Committee</th>
+                    <th scope="col">Information</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+        {% for item in members %}
+        <form action="/delete-details-by-id" method="post" id="{{item.id}}">
+            <input type="hidden" name="id" value="{{item.id}}">
+        </form>
+        <!-- Button trigger modal -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="{{"modal"+ item.id|string}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Edit Awards</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form action="/update-details-by-id" id="{{"formedit"+ item.id|string}}" method="post">
+                <input type="hidden" value="{{item.id}}" name="id">
+                <div class="form-group">
+
+                    <div class="input-group">
+                        <lable for="first_part">Univercity</lable>
+                        <input type="text" id="first_part" name="first_part" value="{{item.first_part}}" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+
+                    <div class="input-group">
+                        <lable for="last_part">Information</lable>
+                        <input type="text" id="last_part" name="second_part" value="{{item.second_part}}" class="form-control"/>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <input type="submit" class="btn btn-primary" value="Save Changes" form="{{"formedit"+ item.id|string}}">
+        </div>
+      </div>
+    </div>
+  </div>
+        <tr>
+            <th scope="row">{{loop.index}}</th>
+            <td>{{item.first_part}}</td>
+            <td>{{item.second_part}}</td>
+            <td>
+                <div class="row w-100">
+                    <button class="btn btn-primary col mx-2" data-toggle="modal" data-target="#{{"modal"+ item.id|string}}">Edit</button>
+                    <input type="submit" value="Delete" form="{{item.id}}" class="btn btn-danger col"/>
+                </div>
+            </td>
+          </tr>
+        {% endfor %}
+
+
+                </tbody>
+              </table>
+
+            <hr>
+
+
+        </div>
         
     </div>
 	<!-- ! Footer Data is here -->
