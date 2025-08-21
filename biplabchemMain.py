@@ -516,7 +516,9 @@ def research():
         return render_template("adminResearch.html", research=researchs)
     return redirect(url_for("login"))
 
-
+@app.route("/health", methods=["GET"])
+def health():
+    return {"status": "ok"}, 200
 @app.route("/update-research", methods=["POST"])
 def update_reasearch():
     if 'user' in session and session['user'] == params['user-name']:
