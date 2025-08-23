@@ -1,4 +1,4 @@
-#!/home/ubuntu/biplabchem_backend/myprojectenv/bin/python3.8
+#!/home/ubuntu/myproject/myprojectenv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
