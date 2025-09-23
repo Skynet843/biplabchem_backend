@@ -1,0 +1,218 @@
+{% extends "layout_admin_panel.html" %} {% block body %}
+
+<div class="container-fluid">
+  <div class="container mt-5">
+    <h3 class="h3 text-primary">Add Presentation :</h3>
+    <hr />
+    <form
+      action="/add-presentation"
+      method="POST"
+      class="col-8 mx-auto"
+      id="presentationForm"
+    >
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          class="form-control"
+          name="description"
+          rows="3"
+          placeholder="Enter the presentation description"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label for="date">Date</label>
+        <!-- Expecting YYYY-MM-DD -->
+        <input
+          type="date"
+          id="date"
+          class="form-control"
+          name="date"
+          placeholder="YYYY-MM-DD"
+        />
+      </div>
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input
+          type="text"
+          id="title"
+          class="form-control"
+          name="title"
+          placeholder="Enter the presentation title"
+        />
+      </div>
+      <div class="form-group">
+        <label for="venue">Venue</label>
+        <input
+          type="text"
+          id="venue"
+          class="form-control"
+          name="venue"
+          placeholder="Enter the presentation venue"
+        />
+      </div>
+    </form>
+    <button
+      class="btn btn-primary"
+      onclick="document.getElementById('presentationForm').submit();"
+      id="presentationSubmit"
+    >
+      Add Presentation
+    </button>
+    <input
+      type="reset"
+      name="reset"
+      form="presentationForm"
+      class="btn btn-info"
+      value="Clear"
+    />
+  </div>
+
+  <div class="container mt-5">
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">No</th>
+          <th scope="col">Description</th>
+          <th scope="col" style="width: 160px">Date</th>
+          <th scope="col">Title</th>
+          <th scope="col">Venue</th>
+          <th scope="col" style="width: 180px">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for item in presentations %}
+
+        <!-- Edit Modal -->
+        <div class="modal" id="{{ 'editPresentationModal' ~ item.id }}">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Edit Presentation</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                  &times;
+                </button>
+              </div>
+
+              <div class="modal-body">
+                <form
+                  action="/update-presentation"
+                  method="POST"
+                  class="col-12 mx-auto"
+                  id="{{ 'presentationUpdateForm' ~ item.id }}"
+                >
+                  <input type="hidden" name="id" value="{{ item.id }}" />
+                  <div class="form-group">
+                    <label for="{{ 'description' ~ item.id }}"
+                      >Description</label
+                    >
+                    <textarea
+                      id="{{ 'description' ~ item.id }}"
+                      class="form-control"
+                      name="description"
+                      rows="3"
+                      placeholder="Enter the presentation description"
+                    >
+{{ item.description }}</textarea
+                    >
+                  </div>
+                  <div class="form-group">
+                    <label for="{{ 'date' ~ item.id }}">Date</label>
+                    <input
+                      type="date"
+                      id="{{ 'date' ~ item.id }}"
+                      class="form-control"
+                      name="date"
+                      value="{{ item.date }}"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="{{ 'title' ~ item.id }}">Title</label>
+                    <input
+                      type="text"
+                      id="{{ 'title' ~ item.id }}"
+                      class="form-control"
+                      name="title"
+                      value="{{ item.title }}"
+                      placeholder="Enter the presentation title"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="{{ 'venue' ~ item.id }}">Venue</label>
+                    <input
+                      type="text"
+                      id="{{ 'venue' ~ item.id }}"
+                      class="form-control"
+                      name="venue"
+                      value="{{ item.venue }}"
+                      placeholder="Enter the presentation venue"
+                    />
+                  </div>
+                </form>
+              </div>
+
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal"
+                >
+                  Close
+                </button>
+                <input
+                  type="submit"
+                  name="submit"
+                  value="Update"
+                  form="{{ 'presentationUpdateForm' ~ item.id }}"
+                  class="btn btn-primary"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete form -->
+        <form
+          action="/delete-presentation"
+          method="POST"
+          id="{{ 'deletePresentation' ~ item.id }}"
+        >
+          <input type="hidden" name="id" value="{{ item.id }}" />
+        </form>
+
+        <!-- Table Row -->
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td class="align-middle">{{ item.description }}</td>
+          <td class="align-middle">
+            <span class="badge badge-light">{{ item.date }}</span>
+          </td>
+          <td class="align-middle">{{ item.title }}</td>
+          <td class="align-middle">{{ item.venue }}</td>
+          <td class="align-middle">
+            <div class="d-flex">
+              <button
+                class="btn btn-primary btn-sm mr-2"
+                data-toggle="modal"
+                data-target="#{{ 'editPresentationModal' ~ item.id }}"
+              >
+                Edit
+              </button>
+              <button
+                class="btn btn-danger btn-sm"
+                form="{{ 'deletePresentation' ~ item.id }}"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
