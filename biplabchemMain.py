@@ -7,12 +7,17 @@ from flask import (
     url_for,
     redirect,
     render_template,
+    send_file,
+    send_from_directory,
+    safe_join,
 )
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
 from flask_cors import CORS
+import zipfile
+from io import BytesIO
 
 # test
 file_path = os.path.abspath(os.getcwd()) + "/biplabchem.db"
@@ -765,6 +770,43 @@ def delete_presentation():
         db.session.delete(presentation)
         db.session.commit()
         return redirect(url_for("presentations"))
+    return redirect(url_for("login"))
+
+
+@app.route("/download-db")
+def download_db():
+    return send_file(
+        "biplabchem.db", as_attachment=True, attachment_filename="biplabchem.db"
+    )
+
+
+@app.route("/download-uploads")
+def download_uploads():
+    if "user" in session and session["user"] == params["user-name"]:
+        memory_file = BytesIO()
+        upload_folder = app.config["UPLOAD_FOLDER"]
+
+        with zipfile.ZipFile(memory_file, "w", zipfile.ZIP_DEFLATED) as zf:
+            for root, dirs, files in os.walk(upload_folder):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, upload_folder)
+                    zf.write(file_path, arcname)
+
+        memory_file.seek(0)
+        return send_file(
+            memory_file,
+            as_attachment=True,
+            attachment_filename="uploads.zip",
+            mimetype="application/zip",
+        )
+    return redirect(url_for("login"))
+
+
+@app.route("/downloads")
+def downloads():
+    if "user" in session and session["user"] == params["user-name"]:
+        return render_template("downloads.html")
     return redirect(url_for("login"))
 
 
